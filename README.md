@@ -1,6 +1,6 @@
 # AdguardHome Prometheus Exporter
 
-![Build/Push (master)](https://github.com/csfreak/adguard-exporter/workflows/Build/Test%20(main)/badge.svg?branch=main)
+![Build/Push (master)](https://github.com/csfreak/adguard-exporter/workflows/Test/Build%20(main)/badge.svg?branch=main)
 [![GoDoc](https://godoc.org/github.com/csfreak/adguard-exporter?status.png)](https://godoc.org/github.com/csfreak/adguard-exporter)
 [![GoReportCard](https://goreportcard.com/badge/github.com/csfreak/adguard-exporter)](https://goreportcard.com/report/github.com/csfreak/adguard-exporter)
 ![DockerPulls](https://img.shields.io/docker/pulls/csfreak/adguard-exporter)
@@ -38,7 +38,6 @@ You can download the latest version of the binary built for your architecture he
 * Architecture **arm64** [
 [Linux](https://github.com/csfreak/adguard-exporter/releases/latest/download/adguard_exporter-linux-arm64) /
 [Darwin](https://github.com/csfreak/adguard-exporter/releases/latest/download/adguard_exporter-darwin-arm64) 
-
 ]
 
 ### From sources
