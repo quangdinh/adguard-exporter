@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -84,13 +84,13 @@ func (c *Client) Scrape() {
 func (c *Client) setMetrics(status *Status, stats *Stats, logstats *LogStats, rdns map[string]string) {
 	//Status
 	var isRunning int = 0
-	if status.Running == true {
+	if status.Running {
 		isRunning = 1
 	}
 	metrics.Running.WithLabelValues(c.hostname).Set(float64(isRunning))
 
 	var isProtected int = 0
-	if status.ProtectionEnabled == true {
+	if status.ProtectionEnabled {
 		isProtected = 1
 	}
 	metrics.ProtectionEnabled.WithLabelValues(c.hostname).Set(float64(isProtected))
@@ -103,20 +103,20 @@ func (c *Client) setMetrics(status *Status, stats *Stats, logstats *LogStats, rd
 	metrics.SafeBrowsingFiltering.WithLabelValues(c.hostname).Set(float64(stats.SafeBrowsingFiltering))
 	metrics.SafeSearchFiltering.WithLabelValues(c.hostname).Set(float64(stats.SafeSearchFiltering))
 
-	for l := range stats.TopQueries {
-		for domain, value := range stats.TopQueries[l] {
+	for _, queries := range stats.TopQueries {
+		for domain, value := range queries {
 			metrics.TopQueries.WithLabelValues(c.hostname, domain).Set(float64(value))
 		}
 	}
 
-	for l := range stats.TopBlocked {
-		for domain, value := range stats.TopBlocked[l] {
+	for _, block := range stats.TopBlocked {
+		for domain, value := range block {
 			metrics.TopBlocked.WithLabelValues(c.hostname, domain).Set(float64(value))
 		}
 	}
 
-	for l := range stats.TopClients {
-		for source, value := range stats.TopClients[l] {
+	for _, client := range stats.TopClients {
+		for source, value := range client {
 			if c.rdnsenabled && isValidIp(source) {
 				hostName, exists := rdns[source]
 				if exists {
@@ -129,12 +129,24 @@ func (c *Client) setMetrics(status *Status, stats *Stats, logstats *LogStats, rd
 		}
 	}
 
+	for _, upstreams := range stats.TopUpstreams {
+		for upstream, value := range upstreams {
+			metrics.TopUpstreams.WithLabelValues(c.hostname, upstream).Set(float64(value))
+		}
+	}
+
+	for _, upstreams := range stats.TopUpstreamsAvgTime {
+		for upstream, value := range upstreams {
+			metrics.TopUpstreamsAvgTime.WithLabelValues(c.hostname, upstream).Set(value)
+		}
+	}
+
 	//LogQuery
 	m = make(map[string]int)
 	logdata := logstats.Data
 	for i := range logdata {
 		dnsanswer := logdata[i].Answer
-		if dnsanswer != nil && len(dnsanswer) > 0 {
+		if len(dnsanswer) > 0 {
 			for j := range dnsanswer {
 				var dnsType string
 				//Check the type of dnsanswer[j].Value, if string leave it be, otherwise get back the object to get the correct DNS type
@@ -198,8 +210,8 @@ func (c *Client) getStatistics() *AllStats {
 
 	if c.rdnsenabled {
 		var sb strings.Builder
-		for l := range stats.TopClients {
-			for source, _ := range stats.TopClients[l] {
+		for l, clients := range stats.TopClients {
+			for source := range clients {
 				sb.WriteString(fmt.Sprintf("ip%d=%s", l, source))
 				if l < len(stats.TopClients)-1 {
 					sb.WriteString("&")
@@ -244,15 +256,16 @@ func (c *Client) MakeRequest(url string) []byte {
 	if err != nil {
 		log.Fatal("An error has occurred during login to Adguard", err)
 	}
+	body, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
+  if err != nil {
+    log.Fatal("Unable to read Adguard statistics HTTP response", err)
+  }
 
 	if resp.StatusCode != 200 {
-		log.Fatal("An error occured in the request, Status Code ", resp.StatusCode)
+		log.Fatal("An error occured in the request, Status Code ", resp.StatusCode, string(body))
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal("Unable to read Adguard statistics HTTP response", err)
-	}
 
 	return body
 }

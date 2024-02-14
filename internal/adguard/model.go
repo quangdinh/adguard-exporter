@@ -24,15 +24,17 @@ type Status struct {
 
 // Stats struct is the Adguard statistics JSON API corresponding model.
 type Stats struct {
-	AvgProcessingTime     float64          `json:"avg_processing_time"`
-	DnsQueries            int              `json:"num_dns_queries"`
-	BlockedFiltering      int              `json:"num_blocked_filtering"`
-	ParentalFiltering     int              `json:"num_replaced_parental"`
-	SafeBrowsingFiltering int              `json:"num_replaced_safebrowsing"`
-	SafeSearchFiltering   int              `json:"num_replaced_safesearch"`
-	TopQueries            []map[string]int `json:"top_queried_domains"`
-	TopBlocked            []map[string]int `json:"top_blocked_domains"`
-	TopClients            []map[string]int `json:"top_clients"`
+	AvgProcessingTime     float64              `json:"avg_processing_time"`
+	DnsQueries            int                  `json:"num_dns_queries"`
+	BlockedFiltering      int                  `json:"num_blocked_filtering"`
+	ParentalFiltering     int                  `json:"num_replaced_parental"`
+	SafeBrowsingFiltering int                  `json:"num_replaced_safebrowsing"`
+	SafeSearchFiltering   int                  `json:"num_replaced_safesearch"`
+	TopQueries            []map[string]int     `json:"top_queried_domains"`
+	TopBlocked            []map[string]int     `json:"top_blocked_domains"`
+	TopClients            []map[string]int     `json:"top_clients"`
+	TopUpstreams          []map[string]int     `json:"top_upstreams_responses"`
+	TopUpstreamsAvgTime   []map[string]float64 `json:"top_upstreams_avg_time"`
 }
 
 type DNSHeader struct {

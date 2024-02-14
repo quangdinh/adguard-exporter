@@ -97,6 +97,26 @@ var (
 		[]string{"hostname", "client"},
 	)
 
+	// TopUpstreams - The number of top clients
+	TopUpstreams = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name:      "top_upstreams",
+			Namespace: "adguard",
+			Help:      "This represent the top upstreams",
+		},
+		[]string{"hostname", "upstream"},
+	)
+
+	// TopUpstreamsAvTime - The average processing time for each upstream
+	TopUpstreamsAvgTime = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name:      "top_upstreams_avg_time",
+			Namespace: "adguard",
+			Help:      "This represent the average processing time for a DNS query per upstream in s",
+		},
+		[]string{"hostname", "upstream"},
+	)
+
 	// QueryTypes - The type of DNS Queries (A, AAAA...)
 	QueryTypes = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -140,6 +160,8 @@ func Init() {
 	initMetric("top_blocked_domains", TopBlocked)
 	initMetric("top_clients", TopClients)
 	initMetric("query_types", QueryTypes)
+  initMetric("top_upstreams", TopUpstreams)
+  initMetric("top_upstreams_avg_time", TopUpstreamsAvgTime)
 	initMetric("running", Running)
 	initMetric("protection_enabled", ProtectionEnabled)
 }
